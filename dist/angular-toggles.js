@@ -28,12 +28,12 @@ angular.module('angularToggles.directives')
     restrict: 'A',
     transclude: true,
     template: '<div ng-show="enabled" ng-transclude></div>',
-    controller: function($scope) {
-      $scope.$watch('feature', function(neww, old) {
-        Toggles.resolveRule(neww).then(function() {
-          $scope.enabled = true;
+    link: function(scope, elem, attrs) {
+      attrs.$observe('feature', function(value) {
+        Toggles.resolveRule(value).then(function() {
+          scope.enabled = true;
         }, function() {
-          $scope.enabled = false;
+          scope.enabled = false;
         });
       });
     }
