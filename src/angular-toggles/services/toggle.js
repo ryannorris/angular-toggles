@@ -1,15 +1,20 @@
 angular.module('angularToggles.services')
-.factory('Toggles', function($http, Endpoints) {
-
-  var self = this;
-
-  $http.get(Endpoints.togglesConfigUrl).success(function(data, status,        headers) {
-    self.rules = data;
-  });
-
+.factory('Toggles', function($http, Endpoints, $q) {
   return {
     resolveRule: function(name) {
-      return self.rules[name] || false;
+      var deferred = $q.defer();
+
+      $http.get(Endpoints.togglesConfigUrl)
+      .success(function(data, status,  headers) {
+        var resolution = data[name] || false;
+        if(data[name] === false) {
+          deferred.reject();
+        } else {
+          deferred.resolve();
+        }
+      });
+
+      return deferred.promise;
     }
   };
 });
