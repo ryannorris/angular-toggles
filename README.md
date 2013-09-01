@@ -23,7 +23,7 @@ What you configure your togglesConfigUrl is your business.  It can be something 
 Example:
 
     {
-      'myCoolFeature': true,
+      'cool_new_feature': true,
       'myExperimentalFeature': false
     }
 
