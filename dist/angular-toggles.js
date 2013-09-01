@@ -23,31 +23,40 @@ angular.module('angularToggles.directives')
 .directive('toggle', function(Toggles) {
   return {
     scope: {
-      feature: '='
+      feature: '@'
     },
     restrict: 'A',
     transclude: true,
     template: '<div ng-show="enabled" ng-transclude></div>',
     controller: function($scope) {
       $scope.$watch('feature', function(neww, old) {
-        $scope.enabled = Toggles.resolveRule(neww);
+        Toggles.resolveRule(neww).then(function() {
+          $scope.enabled = true;
+        }, function() {
+          $scope.enabled = false;
+        });
       });
     }
   };
 });
 
 angular.module('angularToggles.services')
-.factory('Toggles', function($http, Endpoints) {
-
-  var self = this;
-
-  $http.get(Endpoints.togglesConfigUrl).success(function(data, status,        headers) {
-    self.rules = data;
-  });
-
+.factory('Toggles', function($http, Endpoints, $q) {
   return {
     resolveRule: function(name) {
-      return self.rules[name] || false;
+      var deferred = $q.defer();
+
+      $http.get(Endpoints.togglesConfigUrl)
+      .success(function(data, status,  headers) {
+        var resolution = data[name] || false;
+        if(data[name] === false) {
+          deferred.reject();
+        } else {
+          deferred.resolve();
+        }
+      });
+
+      return deferred.promise;
     }
   };
 });
